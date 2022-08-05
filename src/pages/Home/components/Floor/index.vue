@@ -5,8 +5,13 @@
                 <h3 class="fl">家用电器</h3>
                 <div class="fr">
                     <ul class="nav-tabs clearfix">
-                        <li class="active" v-for="(nav,index) in floor.navList" :key="index">
-                            <a href="javaScript:;" data-toggle="tab">{{nav.text}}</a>
+                        <li
+                            :class="{active:changeIndex === index}"
+                            v-for="(nav,index) in floor.navList"
+                            :key="index"
+                            @click="changeIndex=index"
+                        >
+                            <a href="javaScript:;" data-toggle="tab">{{ nav.text }}</a>
                         </li>
                     </ul>
                 </div>
@@ -18,13 +23,13 @@
                             <ul class="jd-list">
                                 <li v-for="(key,index) in floor.keywords" :key="index">{{ key }}</li>
                             </ul>
-                            <img :src="floor.imgUrl" />
+                            <img :src="floor.imgUrl"/>
                         </div>
                         <div class="floorBanner">
                             <div class="swiper-container" id="floor1Swiper">
                                 <div class="swiper-wrapper">
                                     <div class="swiper-slide" v-for="carousel in floor.carouselList" :key="carousel.id">
-                                        <img :src="carousel.imgUrl" >
+                                        <img :src="carousel.imgUrl">
                                     </div>
                                 </div>
                                 <!-- 如果需要分页器 -->
@@ -38,23 +43,22 @@
                         <div class="split">
                             <span class="floor-x-line"></span>
                             <div class="floor-conver-pit">
-                                <img :src="floor.recommendList[0]" />
+                                <img :src="floor.recommendList[0]"/>
                             </div>
                             <div class="floor-conver-pit">
-                                <img :src="floor.recommendList[1]" />
+                                <img :src="floor.recommendList[1]"/>
                             </div>
                         </div>
                         <div class="split center">
-                            <img :src="floor.bigImg
-" />
+                            <img :src="floor.bigImg"/>
                         </div>
                         <div class="split">
                             <span class="floor-x-line"></span>
                             <div class="floor-conver-pit">
-                                <img :src="floor.recommendList[2]" />
+                                <img :src="floor.recommendList[2]"/>
                             </div>
                             <div class="floor-conver-pit">
-                                <img :src="floor.recommendList[3]" />
+                                <img :src="floor.recommendList[3]"/>
                             </div>
                         </div>
                     </div>
@@ -66,34 +70,21 @@
 </template>
 
 <script>
-import Swiper from "swiper";
-import "swiper/css/swiper.min.css"
 
 export default {
-    name:"FloorCom",
-    props:{
-      floor:{
-          type:Object,
-          required:true
-      }
+    name: "FloorCom",
+    data() {
+        return {
+            changeIndex: 0
+        }
+    },
+    props: {
+        floor: {
+            type: Object,
+            required: true
+        }
     },
     mounted() {
-        new Swiper('.swiper-container', {
-            // direction: 'vertical', // 垂直切换选项
-            loop: true, // 循环模式选项
-            autoplay:true,
-            // 如果需要分页器
-            pagination: {
-                el: '.swiper-pagination',
-            },
-
-            // 如果需要前进后退按钮
-            navigation: {
-                nextEl: '.swiper-button-next',
-                prevEl: '.swiper-button-prev',
-            },
-
-        })
 
     }
 }

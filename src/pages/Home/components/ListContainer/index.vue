@@ -4,9 +4,8 @@
             <div class="center">
                 <!--banner轮播-->
                 <div
-
                     class="swiper-container">
-                    <div class="swiper-wrapper">
+                    <div class="swiper-wrapper" ref="listRef">
                         <div
                             class="swiper-slide"
                             v-for="banner in bannerList"
@@ -107,38 +106,56 @@
 </template>
 
 <script>
-import Swiper from "swiper";
-import "swiper/css/swiper.min.css"
+// import Swiper from 'swiper/swiper-bundle.min';
+import "swiper/swiper-bundle.min.css"
 
 export default {
     name: "ListContainerCom",
-    mounted() {
-        new Swiper('.swiper-container', {
-            // direction: 'vertical', // 垂直切换选项
-            loop: true, // 循环模式选项
-            autoplay: {
-                pauseOnMouseEnter: true,
-            },
-            // 如果需要分页器
-            pagination: {
-                el: '.swiper-pagination',
-                clickable :true,
-            },
-
-            // 如果需要前进后退按钮
-            navigation: {
-                nextEl: '.swiper-button-next',
-                prevEl: '.swiper-button-prev',
-            },
-
-        })
-
+    data() {
+        return {
+            bannerSwiper: null
+        }
     },
-    computed:{
-        bannerList(){
+
+    methods: {
+        // initSwiper() {
+        //     this.bannerSwiper = new Swiper(this.$refs.listRef, {
+        //         // autoplay: true, //可选选项，自动滑动
+        //         autoplay: {
+        //             delay: 2000, // 时间间隔
+        //             pauseOnMouseEnter: true, // 鼠标移入暂停,移出继续
+        //             disableOnInteraction: false, // 用户操作swiper之后，是否禁止autoplay。默认为true：停止。如果设置为false，用户操作swiper之后自动切换不会停止，每次都会重新启动autoplay。操作包括触碰(touch)，拖动，点击pagination等。
+        //         },
+        //         loop: true, // 循环模式选项
+        //         // 如果需要分页器
+        //         pagination: {
+        //             el: '.swiper-pagination',
+        //         },
+        //         // 如果需要前进后退按钮
+        //         navigation: {
+        //             nextEl: '.swiper-button-next',
+        //             prevEl: '.swiper-button-prev',
+        //         },
+        //     })
+        // }
+    },
+    computed: {
+        bannerList() {
             return this.$store.state.home.bannerList
         },
-    }
+    },
+    // watch: {
+    //     bannerList: {
+    //         handler(nval) {
+    //             if (nval && nval.length) {
+    //                 this.$nextTick(() => {
+    //                     this.initSwiper();
+    //                 })
+    //             }
+    //         },
+    //         immediate:true
+    //     }
+    // }
 
 }
 
