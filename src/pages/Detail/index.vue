@@ -5,9 +5,9 @@
             <!-- 导航路径区域 -->
             <div class="conPoin">
                 <div class="conPoin">
-<!--                    <a href="javaScript:;">{{ detailList.categoryView.category1Name }}</a>-->
-<!--                    <a href="javaScript:;">{{ categoryView.category2Name }}</a>-->
-<!--                    <a href="javaScript:;">{{ categoryView.category3Name }}</a>-->
+                    <a @click="toSearch">{{ categoryView.category1Name }}</a>
+                    <a @click="toSearch">{{ categoryView.category2Name }}</a>
+                    <a @click="toSearch">{{ categoryView.category3Name }}</a>
                 </div>
             </div>
             <!-- 主要内容区域 -->
@@ -21,19 +21,18 @@
                         </div>
                     </div>
                     <!--下方的缩略图-->
-                    <div class="specScroll">
+                    <div class="specScroll" ref="specScroll">
                         <!--左按钮-->
                         <a class="prev" @click="previousImage">&lt;</a>
                         <!-- 中间可滑动区域 -->
-                        <div class="items">
-                            <div class="itemsCon" ref="thumbnailBox">
+                        <div class="items" ref="items">
+                            <div class="itemsCon" :style="{width:thumbnailWidth+'px'}" ref="thumbnailBox">
                                 <img
                                     ref="thumbnail"
                                     v-for="img in skuInfo.skuImageList"
                                     :key="img.id" :src="img.imgUrl"
                                     @click="changeThePicture(img.imgUrl)"
                                 >
-
                             </div>
                         </div>
                         <!--右按钮-->
@@ -88,26 +87,28 @@
                                 <dt :data-baseSaleAttrId="spuSaleAttr.baseSaleAttrId">{{ spuSaleAttr.saleAttrName }}
                                 </dt>
                                 <dd v-for="spuSaleAttrValue in spuSaleAttr.spuSaleAttrValueList"
-                                    :key="spuSaleAttrValue.id">{{ spuSaleAttrValue.saleAttrValueName }}
+                                    :key="spuSaleAttrValue.id"
+                                    :class="{active: supId ===spuSaleAttrValue.id}"
+                                    @click="supId = spuSaleAttrValue.id"
+                                >{{ spuSaleAttrValue.saleAttrValueName }}
                                 </dd>
                             </dl>
                         </div>
 
                         <div class="cartWrap">
                             <div class="controls">
-                                <input autocomplete="off" value="1" class="itxt"/>
-                                <a href="###" class="plus">+</a>
-                                <a href="###" class="mins">-</a>
+                                <input autocomplete="off" value="1" v-model="skuNum" class="itxt"/>
+                                <a @click.prevent="skuNum++" class="plus">+</a>
+                                <a @click.prevent="skuNum--" class="mins">-</a>
                             </div>
                             <div class="add">
-                                <a href="###" target="_blank">加入购物车</a>
+                                <a @click="addCartSuccess" target="_blank">加入购物车</a>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
-
         <!-- 内容详情页 -->
         <section class="productDetail">
             <aside class="aside">
@@ -347,17 +348,23 @@
                 </div>
             </div>
         </section>
-
-
     </div>
 </template>
 
 <script>
 
 import {mapActions, mapGetters, mapState} from "vuex";
+import {postAddToCart} from "@/api";
 
 export default {
     name: "DetailCom",
+    data(){
+        return{
+            supId:1,
+            thumbnailWidth:0,
+            skuNum:1
+        }
+    },
     methods: {
         ...mapActions(["get_goods_detail_list"]),
         // 点击缩略图更换图片
@@ -366,33 +373,51 @@ export default {
         },
         previousImage() {
             let thumbnailBox = this.$refs.thumbnailBox
-            let thumbnail = this.$refs.thumbnail.length
-            console.log(thumbnailBox.offsetLeft,thumbnail)
-            if (thumbnailBox.offsetLeft<=0){
+            let countMove =372- this.thumbnailWidth
+            if (thumbnailBox.offsetLeft >= countMove){
                 thumbnailBox.style.left = thumbnailBox.offsetLeft -106 +"px"
             }
-            console.log(thumbnailBox.style.left)
         },
         nextThumbnail(){
             let thumbnailBox = this.$refs.thumbnailBox
-            let thumbnail = this.$refs.thumbnail.length
-            console.log(thumbnailBox.offsetLeft,thumbnail)
-
             if (thumbnailBox.offsetLeft<0) {
                 thumbnailBox.style.left = thumbnailBox.offsetLeft +106 +"px"
             }
-            console.log(thumbnailBox.style.left)
+        },
+        async addCartSuccess(){
+            const result = await postAddToCart(this.skuInfo.id,this.skuNum)
+            if(result.code ===200){
+                alert("添加购物车成功,即将跳转添加购物车成功页面")
+                this.$router.push(`/addCartSuccess/`+this.skuNum)
+                sessionStorage.setItem("SKUINFO_KEY",JSON.stringify(this.skuInfo))
+            }
+
+        },
+        toSearch(){
+            console.log()
         }
     },
 
     mounted() {
         this.get_goods_detail_list( this.$route.params.id)
     },
+    updated() {
+        this.thumbnailWidth =(this.skuInfo.skuImageList.length)*106
+    },
     computed: {
         ...mapGetters(["categoryView", "spuSaleAttrList", "skuInfo", "price"]),
         ...mapState({
             detailList:state=>state.detail.detailList
-        })
+        }),
+    },
+    watch:{
+        skuNum:{
+            handler(val){
+                if (val<1){
+                    this.skuNum = 1
+                }
+            }
+        }
     }
 }
 
@@ -433,9 +458,9 @@ export default {
                     width: 400px;
                     height: 400px;
                     position: relative;
-
                     img {
                         width: 100%;
+                        height: 100%;
                     }
 
                     .mask {
@@ -668,11 +693,11 @@ export default {
                             border-right: 1px solid #bbb;
                             border-bottom: 1px solid #bbb;
                             border-left: 1px solid #eee;
-
-                            &:nth-of-type(1) {
-                                color: red;
+                            &.active{
+                                color: pink;
                             }
                         }
+
                     }
                 }
 
@@ -1007,4 +1032,5 @@ export default {
         }
     }
 }
+
 </style>

@@ -1,4 +1,4 @@
-// vuex管理的home模块
+ // vuex管理的home模块
 
 import {getBaseCategoryList, getHomeBannerList, getHomeFloorList, getHomeList} from "@/api";
 

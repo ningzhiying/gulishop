@@ -12,6 +12,7 @@ const mutations = {
 const actions = {
     // 获取信息列表
     async inquire_about_products({commit},searchParams){
+        console.log(searchParams)
        try{
            const result = await postCommodityList(searchParams)
            console.log(result)
@@ -43,6 +44,7 @@ const getters = {
     }
 };
 export default {
+    namespaced:true,
     state,
     actions,
     mutations,

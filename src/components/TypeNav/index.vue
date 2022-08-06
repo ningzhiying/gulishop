@@ -84,7 +84,7 @@ export default {
             isShow: false
         }
     },
-    mounted() {
+    beforeMount() {
         this.isShow = this.$route.path === "/home"
     },
     methods: {
@@ -116,7 +116,12 @@ export default {
                     location.params = this.$route.params
                 }
                 console.log(location)
-                this.$router.push(location)
+                if(this.$route.path ==="/home"){
+                    this.$router.push(location)
+                }else {
+                    this.$router.replace(location)
+                }
+
             }
         }
     },
@@ -173,6 +178,7 @@ export default {
             .all-sort-list2 {
                 .item {
                     h3 {
+                        box-sizing: border-box;
                         width: 100%;
                         line-height: 30px;
                         font-size: 14px;

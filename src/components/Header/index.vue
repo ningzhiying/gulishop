@@ -34,7 +34,7 @@
                 </router-link>
             </h1>
             <div class="searchArea" v-show="!$route.meta.isHideFooter">
-                <form action="###" class="searchForm">
+                <form action="javaScript:;" class="searchForm">
                     <input type="text" id="autocomplete" class="input-error input-xxlarge" v-model="keyword"/>
                     <button class="sui-btn btn-xlarge btn-danger" type="button" @click="toSearch">搜索</button>
                 </form>
@@ -63,11 +63,14 @@ export default {
             if(this.$route.query){
                 location.query = this.$route.query
             }
-            this.$router.push(location)
+            if(this.$route.query ==="/home"){
+                this.$router.push(location)
+            } else {
+                this.$router.replace(location)
+            }
         },
         deleteKeyword() {
             this.keyword=""
-            this.toSearch()
         }
     }
 }

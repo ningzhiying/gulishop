@@ -2,13 +2,21 @@ import axios from "axios";
 import NProgress from "nprogress";
 import "nprogress/nprogress.css"
 
+
 NProgress.configure({showSpinner: false});
 
 const request = axios.create({
     baseURL: "/api",
-    timeout: 10000
+    timeout: 10000,
+
+
 })
+
+
 request.interceptors.request.use(config => {
+    config.headers={
+            "userTempId":localStorage.getItem("USERTEMPID_KEY")
+    }
     NProgress.start();
     return config
 }, (error) => {

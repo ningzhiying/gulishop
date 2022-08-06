@@ -3,24 +3,9 @@
         <div class="sortList clearfix">
             <div class="center">
                 <!--banner轮播-->
-                <div
-                    class="swiper-container">
-                    <div class="swiper-wrapper" ref="listRef">
-                        <div
-                            class="swiper-slide"
-                            v-for="banner in bannerList"
-                            :key="banner.id"
-                        >
-                            <img :src="banner.imgUrl"/>
-                        </div>
-                    </div>
-                    <!-- 如果需要分页器 -->
-                    <div class="swiper-pagination"></div>
-
-                    <!-- 如果需要导航按钮 -->
-                    <div class="swiper-button-prev"></div>
-                    <div class="swiper-button-next"></div>
-                </div>
+                <BannerSwiper
+                    :List="bannerList"
+                ></BannerSwiper>
             </div>
             <div class="right">
                 <div class="news">
@@ -106,57 +91,15 @@
 </template>
 
 <script>
-// import Swiper from 'swiper/swiper-bundle.min';
-import "swiper/swiper-bundle.min.css"
+
 
 export default {
     name: "ListContainerCom",
-    data() {
-        return {
-            bannerSwiper: null
-        }
-    },
-
-    methods: {
-        // initSwiper() {
-        //     this.bannerSwiper = new Swiper(this.$refs.listRef, {
-        //         // autoplay: true, //可选选项，自动滑动
-        //         autoplay: {
-        //             delay: 2000, // 时间间隔
-        //             pauseOnMouseEnter: true, // 鼠标移入暂停,移出继续
-        //             disableOnInteraction: false, // 用户操作swiper之后，是否禁止autoplay。默认为true：停止。如果设置为false，用户操作swiper之后自动切换不会停止，每次都会重新启动autoplay。操作包括触碰(touch)，拖动，点击pagination等。
-        //         },
-        //         loop: true, // 循环模式选项
-        //         // 如果需要分页器
-        //         pagination: {
-        //             el: '.swiper-pagination',
-        //         },
-        //         // 如果需要前进后退按钮
-        //         navigation: {
-        //             nextEl: '.swiper-button-next',
-        //             prevEl: '.swiper-button-prev',
-        //         },
-        //     })
-        // }
-    },
     computed: {
         bannerList() {
             return this.$store.state.home.bannerList
         },
     },
-    // watch: {
-    //     bannerList: {
-    //         handler(nval) {
-    //             if (nval && nval.length) {
-    //                 this.$nextTick(() => {
-    //                     this.initSwiper();
-    //                 })
-    //             }
-    //         },
-    //         immediate:true
-    //     }
-    // }
-
 }
 
 </script>

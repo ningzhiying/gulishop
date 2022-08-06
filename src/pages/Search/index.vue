@@ -11,11 +11,15 @@
                         </li>
                     </ul>
                     <ul class="fl sui-tag">
+                        <li class="with-x" v-if="searchParams.categoryName">{{ searchParams.categoryName }}<i
+                            @click="deleteCategoryName">×</i></li>
                         <li class="with-x" v-if="searchParams.keyword">{{ searchParams.keyword }} <i
                             @click="deleteKeyword">×</i></li>
-                        <li class="with-x" v-if="trademark">{{ trademark.name }}<i @click="deleteTrademark">×</i></li>
-                        <li class="with-x" v-for="item in parameter " :key="item.id">{{ item.val }}<i
-                            @click="deleteParameter(item.id)">×</i></li>
+                        <li class="with-x" v-if="searchParams.trademark">{{ searchParams.trademark.split(":")[1] }}<i
+                            @click="deleteTrademark">×</i></li>
+                        <li class="with-x" v-for="(item,index ) in searchParams.props " :key="index">
+                            {{ item.split(":")[1] }}<i
+                            @click="deleteParameter(index)">×</i></li>
                     </ul>
                 </div>
                 <!--selector-->
@@ -28,6 +32,7 @@
                                     v-for="trademark in trademarkList"
                                     :key="trademark.tmId"
                                     @click="changeTrademark(trademark.tmId,trademark.tmName)"
+                                    :style="{cursor:'pointer'}"
                                 >
                                     {{ trademark.tmName }}
                                 </li>
@@ -46,7 +51,10 @@
                                     v-for="(attrValue,index) in attrs.attrValueList"
                                     :key="index"
                                 >
-                                    <a @click.prevent="addProps(attrs ,attrValue)">{{ attrValue }}</a>
+                                    <a
+                                        @click="addProps(attrs ,attrValue)"
+                                        :style="{cursor:'pointer'}"
+                                    >{{ attrValue }}</a>
                                 </li>
                             </ul>
                         </div>
@@ -59,41 +67,50 @@
                         <div class="navbar-inner filter">
                             <ul class="sui-nav">
                                 <li :class="{active:!Show}">
-                                    <a  @click=" synthesizeSort">
+                                    <a @click=" synthesizeSort">
                                         综合
-                                       <span v-if="!Show"> <i :class="{'iconfont':true,'icon-jiantou_xiangxia ': synthesize==='desc'}"></i><i :class="{'iconfont':true,'icon-jiantou_xiangshang ': synthesize==='asc'}"></i></span>
+                                        <i v-if="!Show"
+                                           :class="{'iconfont':true,
+                                               'icon-jiantou_xiangxia ': synthesize==='desc',
+                                               'icon-jiantou_xiangshang ': synthesize==='asc'}"></i>
                                     </a>
                                 </li>
                                 <li :class="{active:Show}">
-                                    <a
-                                    @click="priceSort"
-                                    >
+                                    <a @click="priceSort">
                                         价格
-                                        <span v-if="Show"><i :class="{'iconfont':true,'icon-jiantou_xiangxia ': price==='desc'}"></i><i :class="{'iconfont':true,'icon-jiantou_xiangshang ': price==='asc'}"></i></span>
+                                        <i v-if="Show"
+                                           :class="{'iconfont':true,
+                                            'icon-jiantou_xiangxia ': price==='desc',
+                                            'icon-jiantou_xiangshang ': price==='asc'}"></i>
                                     </a>
                                 </li>
-
                             </ul>
                         </div>
                     </div>
                     <div class="goods-list">
                         <ul class="yui3-g">
-                            <li class="yui3-u-1-5" v-for="goods in goodsList" :key="goods.id">
+                            <li
+                                class="yui3-u-1-5"
+                                v-for="goods in goodsList"
+                                :key="goods.id"
+                            >
                                 <div class="list-wrap">
                                     <div class="p-img">
-                                        <a @click="JumpToDetail(goods.id)" target="_blank"><img :src="goods.defaultImg"/></a>
+                                        <a @click="JumpToDetail(goods.id)" target="_blank">
+                                            <img :src="goods.defaultImg"/>
+                                        </a>
                                     </div>
                                     <div class="price">
                                         <strong>
                                             <em>¥ </em>
-                                            <i>{{ goods.price }}.00</i>
+                                            <i>{{ goods.price.toFixed(2) }} &nbsp;</i>
                                         </strong>
                                     </div>
                                     <div class="attr">
-                                        <a target="_blank" href="item.html"
-                                           title="促销信息，下单即赠送三个月CIBN视频会员卡！【小米电视新品4A 58 火爆预约中】">{{
-                                                goods.title
-                                            }}</a>
+                                        <a
+                                            @click="JumpToDetail(goods.id)"
+                                            title="促销信息，下单即赠送三个月CIBN视频会员卡！【小米电视新品4A 58 火爆预约中】"
+                                        >{{ goods.title }}</a>
                                     </div>
                                     <div class="commit">
                                         <i class="command">已有<span>2000</span>人评价</i>
@@ -126,7 +143,8 @@
                             <li class="yui3-u-1-4">
                                 <div class="list-wrap">
                                     <div class="p-img">
-                                        <img src="http://47.93.148.192:8080/group1/M00/00/01/rBHu8l-rfvmAcbl2AAFopp2WGBQ404.jpg"/>
+                                        <img
+                                            src="http://47.93.148.192:8080/group1/M00/00/01/rBHu8l-rfvmAcbl2AAFopp2WGBQ404.jpg"/>
                                     </div>
                                     <div class="attr">
                                         <em>Apple苹果iPhone 6s (A1699)</em>
@@ -145,7 +163,8 @@
                             <li class="yui3-u-1-4">
                                 <div class="list-wrap">
                                     <div class="p-img">
-                                        <img src="http://47.93.148.192:8080/group1/M00/00/01/rBHu8l-rfvmAcbl2AAFopp2WGBQ404.jpg"/>
+                                        <img
+                                            src="http://47.93.148.192:8080/group1/M00/00/01/rBHu8l-rfvmAcbl2AAFopp2WGBQ404.jpg"/>
                                     </div>
                                     <div class="attr">
                                         <em>Apple苹果iPhone 6s (A1699)</em>
@@ -164,7 +183,8 @@
                             <li class="yui3-u-1-4">
                                 <div class="list-wrap">
                                     <div class="p-img">
-                                        <img src="http://47.93.148.192:8080/group1/M00/00/01/rBHu8l-rfvmAcbl2AAFopp2WGBQ404.jpg"/>
+                                        <img
+                                            src="http://47.93.148.192:8080/group1/M00/00/01/rBHu8l-rfvmAcbl2AAFopp2WGBQ404.jpg"/>
                                     </div>
                                     <div class="attr">
                                         <em>Apple苹果iPhone 6s (A1699)</em>
@@ -183,7 +203,8 @@
                             <li class="yui3-u-1-4">
                                 <div class="list-wrap">
                                     <div class="p-img">
-                                        <img src="http://47.93.148.192:8080/group1/M00/00/01/rBHu8l-rfvmAcbl2AAFopp2WGBQ404.jpg"/>
+                                        <img
+                                            src="http://47.93.148.192:8080/group1/M00/00/01/rBHu8l-rfvmAcbl2AAFopp2WGBQ404.jpg"/>
                                     </div>
                                     <div class="attr">
                                         <em>Apple苹果iPhone 6s (A1699)</em>
@@ -209,116 +230,128 @@
 
 <script>
 import {mapActions, mapGetters} from "vuex";
-import debounce from "lodash/debounce"
+
 export default {
     name: "SearchCom",
     data() {
         return {
             searchParams: {
-                ...this.$route.query,
+                categoryName: '',
+                category3Id: "",
                 order: "1:desc",
                 pageNo: "1",
                 pageSize: 5,
                 props: [],
-                keyword: this.$route.params.keyword,
-                trademark: ""
+                keyword: "",
+                trademark: undefined
             },
-            trademark: null,
-            parameter: [],
-            Show:false,
-            isShow1:false,
-            isShow2:false,
-            price:"asc",
-            synthesize:"desc",
-            p:[{i:1},{i:1},{i:1},{i:1}]
+            Show: false,
+            isShow1: false,
+            isShow2: false,
+            price: "asc",
+            synthesize: "desc",
         }
     },
     methods: {
+        handlerSearchParams() {
+            const {categoryName, category1Id, category2Id, category3Id} = this.$route.query
+            this.searchParams = {
+                ...this.searchParams,
+                categoryName,
+                category1Id,
+                category2Id,
+                category3Id
+            }
+        },
         // 获取信息列表
-        ...mapActions(['inquire_about_products']),
+        ...mapActions("search", ['inquire_about_products']),
         //添加配置参数
         addProps(attrs, attrValue) {
-            let arr = this.searchParams.props.map(item => item.split(":")[0])
-            if (!arr.some(item => item == attrs.attrId)) {
-                this.searchParams.props.push(`${attrs.attrId}:${attrValue}:${attrs.attrName}`)
-                this.parameter.push({id: attrs.attrId, val: attrValue})
+            let text = `${attrs.attrId}:${attrValue}:${attrs.attrName}`
+            if (!this.searchParams.props.includes(text)) {
+                this.searchParams.props.push(text)
             }
-
         },
         //选择品牌
         changeTrademark(id, name) {
             this.searchParams.trademark = `${id}:${name}`
             this.trademark = {id: id, name: name}
         },
+        //删除三级导航
+        deleteCategoryName() {
+            this.$router.replace({
+                name: "search",
+                params: this.$route.params
+            })
+        },
         //删除下搜索参数
         deleteKeyword() {
-            this.searchParams.keyword = ''
-            console.log(this.$route)
+            this.$router.replace({
+                name: "search",
+                params: this.$route.query
+            })
             this.$bus.$emit("deleteKeyword")
         },
         //删除品牌参数
         deleteTrademark() {
             this.trademark = null
-            this.searchParams.trademark = ""
+            this.searchParams.trademark = undefined
         },
         //删除配置参数
-        deleteParameter(id) {
-            let result = this.searchParams.props.findIndex(item => item.split(":")[0] == id)
-            let result2 = this.parameter.findIndex(item => item.id == id)
-            this.searchParams.props.splice(result, 1)
-            this.parameter.splice(result2,1)
-            console.log(result)
+        deleteParameter(index) {
+            this.searchParams.props.splice(index, 1)
         },
         //综合排序
-        priceSort:debounce(function (){
-            this.Show=true;
-            this.isShow1=false
-            if (this.isShow2){
+        priceSort() {
+            this.Show = true; //默认综合属性高亮
+            this.isShow1 = false //默认降序
+            if (this.isShow2) {
                 this.isShow2 = false
-                console.log(2)
-                this.price="asc"
-            }else {
-                this.price="desc"
-                console.log(1)
+                this.price = "asc"
+            } else {
+                this.price = "desc"
                 this.isShow2 = true
             }
-            this.searchParams.order=`2:${this.price}`
-            },300),
+            this.searchParams.order = `2:${this.price}`
+        },
         //价格排序
-        synthesizeSort:debounce(function (){
-            this.Show=false;
-            this.isShow2=false
-            if (this.isShow1){
+        synthesizeSort() {
+            this.Show = false;
+            this.isShow2 = false
+            if (this.isShow1) {
                 this.isShow1 = false
-                this.synthesize="asc"
-            }else {
-                this.synthesize="desc"
+                this.synthesize = "asc"
+            } else {
+                this.synthesize = "desc"
                 this.isShow1 = true
             }
-            this.searchParams.order=`1:${this.synthesize}`
-        },300),
+            this.searchParams.order = `1:${this.synthesize}`
+        },
         //换页
         handleCurrentChange(val) {
-           this.searchParams.pageNo = val
+            this.searchParams.pageNo = val
         },
-        JumpToDetail(id){
-            this.$router.push("/detail/"+id)
+        JumpToDetail(id) {
+            this.$router.push("/detail/" + id)
         }
     },
     mounted() {
         this.inquire_about_products({
             ...this.searchParams
         });
+        console.log(this.searchParams)
     },
     computed: {
-        ...mapGetters(["attrsList", "goodsList", "trademarkList","pages"]),
+        ...mapGetters("search", ["attrsList", "goodsList", "trademarkList", "pages"]),
     },
     watch: {
         //监听路由
         $route: {
             handler() {
                 this.searchParams.keyword = this.$route.params.keyword
+                this.handlerSearchParams()
             },
+            immediate: true,
             deep: true
         },
         //监听参数，请求数据
@@ -326,6 +359,7 @@ export default {
             handler() {
                 this.inquire_about_products(this.searchParams)
             },
+            immediate: true,
             deep: true
         }
     }
