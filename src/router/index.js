@@ -1,15 +1,9 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
-import Home from "@/pages/Home";
-import Login from "@/pages/Login";
-import Search from "@/pages/Search";
-import Register from "@/pages/Register";
-import Detail from "@/pages/Detail";
-import AddCart from "@/pages/AddCart";
-import Cart from "@/pages/Cart";
+import routes from "@/router/routes";
 
 Vue.use(VueRouter);
-
+// 解决$router.push()两次同一个位置报错
 const originPush = VueRouter.prototype.push;
 VueRouter.prototype.push = function push(location) {
     return originPush.call(this, location).catch(() => {
@@ -21,45 +15,11 @@ VueRouter.prototype.replace = function replace(location) {
     })
 }
 export default new VueRouter({
-    routes: [{
-        path: "/home",
-        component: Home
-    }, {
-        path: "/login",
-        component: Login,
-        meta: {
-            isHideFooter: true
-        }
-    }, {
-        name: "search",
-        path: "/search/:keyword?",
-        component: Search,
-        props(route) {
-            return {
-                categoryName: route.query.categoryName,
-                category1id: route.query.category1id,
-                category2id: route.query.category2id,
-                category3id: route.query.category3id,
-            }
-        }
-    }, {
-        path: "/register",
-        component: Register,
-        meta: {
-            isHideFooter: true
-        }
-    }, {
-        path: "/detail/:id",
-        component: Detail
-    }, {
-        name: "addCartSuccess",
-        path: "/addCartSuccess/:skuNum",
-        component: AddCart,
-    },{
-        path:"/shopcart",
-        component:Cart
-    }, {
-        path: "/",
-        redirect: "/home"
-    },]
+    //配置路由
+    routes,
+    // eslint-disable-next-line no-unused-vars
+    scrollBehavior (to, from, savedPosition) {
+        return { x: 0, y: 0 }
+
+    }
 })

@@ -5,9 +5,15 @@
             <!-- 导航路径区域 -->
             <div class="conPoin">
                 <div class="conPoin">
-                    <a @click="toSearch">{{ categoryView.category1Name }}</a>
-                    <a @click="toSearch">{{ categoryView.category2Name }}</a>
-                    <a @click="toSearch">{{ categoryView.category3Name }}</a>
+                    <a @click="toSearch1( categoryView.category1Name, categoryView.category1Id)">{{
+                            categoryView.category1Name
+                        }}</a>
+                    <a @click="toSearch2( categoryView.category2Name, categoryView.category2Id)">{{
+                            categoryView.category2Name
+                        }}</a>
+                    <a @click="toSearch3( categoryView.category3Name, categoryView.category3Id)">{{
+                            categoryView.category3Name
+                        }}</a>
                 </div>
             </div>
             <!-- 主要内容区域 -->
@@ -15,11 +21,7 @@
                 <!-- 左侧放大镜区域 -->
                 <div class="previewWrap">
                     <!--放大镜效果-->
-                    <div class="preview">
-                        <div class="jqzoom">
-                            <img ref="mainImage" :src="skuInfo.skuDefaultImg"/>
-                        </div>
-                    </div>
+                    <ZoomCom :skuImageList="skuInfo.skuImageList"></ZoomCom>
                     <!--下方的缩略图-->
                     <div class="specScroll" ref="specScroll">
                         <!--左按钮-->
@@ -88,13 +90,12 @@
                                 </dt>
                                 <dd v-for="spuSaleAttrValue in spuSaleAttr.spuSaleAttrValueList"
                                     :key="spuSaleAttrValue.id"
-                                    :class="{active: supId ===spuSaleAttrValue.id}"
+                                    :class="{active: spuSaleAttrValue.isChecked ==1}"
                                     @click="supId = spuSaleAttrValue.id"
                                 >{{ spuSaleAttrValue.saleAttrValueName }}
                                 </dd>
                             </dl>
                         </div>
-
                         <div class="cartWrap">
                             <div class="controls">
                                 <input autocomplete="off" value="1" v-model="skuNum" class="itxt"/>
@@ -354,66 +355,104 @@
 <script>
 
 import {mapActions, mapGetters, mapState} from "vuex";
-import {postAddToCart} from "@/api";
+import ZoomCom from "@/pages/Detail/Zoom";
 
 export default {
     name: "DetailCom",
-    data(){
-        return{
-            supId:1,
-            thumbnailWidth:0,
-            skuNum:1
+    components: {ZoomCom},
+    data() {
+        return {
+            skuId: '',
+            supId: 1,
+            thumbnailWidth: 0,
+            skuNum: 1,
         }
     },
     methods: {
         ...mapActions(["get_goods_detail_list"]),
+        ...mapActions('addcart', ["add_cart"]),
         // 点击缩略图更换图片
         changeThePicture(src) {
-            this.$refs.mainImage.src = src
-        },
-        previousImage() {
-            let thumbnailBox = this.$refs.thumbnailBox
-            let countMove =372- this.thumbnailWidth
-            if (thumbnailBox.offsetLeft >= countMove){
-                thumbnailBox.style.left = thumbnailBox.offsetLeft -106 +"px"
-            }
-        },
-        nextThumbnail(){
-            let thumbnailBox = this.$refs.thumbnailBox
-            if (thumbnailBox.offsetLeft<0) {
-                thumbnailBox.style.left = thumbnailBox.offsetLeft +106 +"px"
-            }
-        },
-        async addCartSuccess(){
-            const result = await postAddToCart(this.skuInfo.id,this.skuNum)
-            if(result.code ===200){
-                alert("添加购物车成功,即将跳转添加购物车成功页面")
-                this.$router.push(`/addCartSuccess/`+this.skuNum)
-                sessionStorage.setItem("SKUINFO_KEY",JSON.stringify(this.skuInfo))
-            }
+            this.$bus.$emit("switchPictures",src)
 
         },
-        toSearch(){
-            console.log()
+        //切换缩略图
+        previousImage() {
+            let thumbnailBox = this.$refs.thumbnailBox
+            let countMove = 372 - this.thumbnailWidth
+            if (thumbnailBox.offsetLeft >= countMove) {
+                thumbnailBox.style.left = thumbnailBox.offsetLeft - 106 + "px"
+            }
+        },
+        nextThumbnail() {
+            let thumbnailBox = this.$refs.thumbnailBox
+            if (thumbnailBox.offsetLeft < 0) {
+                thumbnailBox.style.left = thumbnailBox.offsetLeft + 106 + "px"
+            }
+        },
+        //添加购物车
+        addCartSuccess() {
+            let data = {
+                skuId: this.skuId,
+                skuNum: this.skuNum
+            }
+            this.add_cart(data)
+            alert("添加购物车成功,即将跳转添加购物车成功页面")
+            this.$router.push(`/addCartSuccess/` + this.skuNum)
+            sessionStorage.setItem("SKUINFO_KEY", JSON.stringify(this.skuInfo))
+
+
+        },
+        //面包屑导航跳转
+        toSearch1(categoryName, category1id) {
+            this.$router.replace({
+                name: "search",
+                query: {
+                    categoryName,
+                    category1id
+                }
+
+            })
+        },
+        toSearch2(categoryName, category2id) {
+            this.$router.replace({
+                name: "search",
+                query: {
+                    categoryName,
+                    category2id
+                }
+
+            })
+        },
+        toSearch3(categoryName, category3id) {
+            this.$router.replace({
+                name: "search",
+                query: {
+                    categoryName,
+                    category3id
+                }
+
+            })
         }
     },
 
     mounted() {
-        this.get_goods_detail_list( this.$route.params.id)
+        this.skuId = this.$route.params.id
+        this.get_goods_detail_list(this.skuId)
     },
     updated() {
-        this.thumbnailWidth =(this.skuInfo.skuImageList.length)*106
+        this.thumbnailWidth = (this.skuInfo.skuImageList.length) * 106
     },
     computed: {
         ...mapGetters(["categoryView", "spuSaleAttrList", "skuInfo", "price"]),
         ...mapState({
-            detailList:state=>state.detail.detailList
+            detailList: state => state.detail.detailList
         }),
     },
-    watch:{
-        skuNum:{
-            handler(val){
-                if (val<1){
+    watch: {
+        skuNum: {
+            handler(val) {
+                if (val < 1) {
                     this.skuNum = 1
                 }
             }
@@ -458,6 +497,7 @@ export default {
                     width: 400px;
                     height: 400px;
                     position: relative;
+
                     img {
                         width: 100%;
                         height: 100%;
@@ -693,7 +733,8 @@ export default {
                             border-right: 1px solid #bbb;
                             border-bottom: 1px solid #bbb;
                             border-left: 1px solid #eee;
-                            &.active{
+
+                            &.active {
                                 color: pink;
                             }
                         }

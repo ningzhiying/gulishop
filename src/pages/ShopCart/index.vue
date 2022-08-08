@@ -12,32 +12,39 @@
                 <div class="cart-th6">操作</div>
             </div>
             <div class="cart-body">
-
-
                 <ul
-                    v-for="cartInfo in cartList.cartInfoList"
+                    v-for="cartInfo in cartInfoList"
                     :key="cartInfo.id"
                     class="cart-list">
                     <li class="cart-list-con1">
-                        <input type="checkbox" name="chk_list">
+                        <input
+                            type="checkbox"
+                            name="chk_list"
+                            :checked="cartInfo.isChecked"
+                            @change="changeCheckCart($event,cartInfo.skuId)">
                     </li>
                     <li class="cart-list-con2">
                         <img :src="cartInfo.imgUrl">
                         <div class="item-msg">{{ cartInfo.skuName }}</div>
                     </li>
                     <li class="cart-list-con4">
-                        <span class="price">{{cartInfo.skuPrice}}.00</span>
+                        <span class="price">{{ cartInfo.skuPrice.toFixed(2) }}</span>
                     </li>
                     <li class="cart-list-con5">
-                        <a href="javascript:void(0)" class="mins">-</a>
-                        <input autocomplete="off" type="text" :value="cartInfo.skuNum" minnum="1"  class="itxt">
-                        <a href="javascript:void(0)" class="plus">+</a>
+                        <a class="mins" @click="addCart(cartInfo.skuId,-1)">-</a>
+                        <input autocomplete="off"
+                               type="text"
+                               :value="cartInfo.skuNum"
+                               :data-Id="cartInfo.skuId"
+                               :data-Num="cartInfo.skuNum"
+                               @change="changeCart" minnum="1" class="itxt">
+                        <a class="plus" @click="addCart(cartInfo.skuId,1)">+</a>
                     </li>
                     <li class="cart-list-con6">
-                        <span class="sum">{{ cartInfo.skuPrice * cartInfo.skuNum }}</span>
+                        <span class="sum">{{ (cartInfo.skuPrice * cartInfo.skuNum).toFixed(2) }}</span>
                     </li>
                     <li class="cart-list-con7">
-                        <a href="#none" class="sindelet">删除</a>
+                        <a class="sindelet" @click.prevent="deleteCart(cartInfo.skuId)">删除</a>
                         <br>
                         <a href="#none">移到收藏</a>
                     </li>
@@ -47,24 +54,24 @@
         </div>
         <div class="cart-tool">
             <div class="select-all">
-                <input class="chooseAll" type="checkbox">
+                <input class="chooseAll" type="checkbox" :checked="isSelectAll" @change="selectAll(isSelectAll)">
                 <span>全选</span>
             </div>
             <div class="option">
-                <a href="#none">删除选中的商品</a>
+                <a @click.prevent="deleteAll">删除选中的商品</a>
                 <a href="#none">移到我的关注</a>
                 <a href="#none">清除下柜商品</a>
             </div>
             <div class="money-box">
                 <div class="chosed">已选择
-                    <span>0</span>件商品
+                    <span>{{ chosen }}</span>件商品
                 </div>
                 <div class="sumprice">
                     <em>总价（不含运费） ：</em>
-                    <i class="summoney">0</i>
+                    <i class="summoney">{{ totalPrice.toFixed(2) }}</i>
                 </div>
                 <div class="sumbtn">
-                    <a class="sum-btn" href="###" target="_blank">结算</a>
+                    <router-link to="/trade" class="sum-btn" >结算</router-link>
                 </div>
             </div>
         </div>
@@ -72,22 +79,104 @@
 </template>
 
 <script>
-import {mapActions, mapState} from "vuex";
+import {mapActions, mapGetters} from "vuex";
 
 export default {
     name: "CartCom",
-
-    methods:{
-        ...mapActions("cart",["get_cart_list"])
+    data() {
+        return {
+            isSelectAll: false,
+            chosen: 0
+        }
+    },
+    methods: {
+        ...mapActions("shopcart", ["get_cart_list", "get_check_cart", "post_batch_check_cart", "delete_batch_delete_cart", "delete_cart"]),
+        ...mapActions("addcart", ["add_cart"]),
+        //数量加减
+        async addCart(skuId, skuNum) {
+            alert("修改数量成功")
+            await this.add_cart({skuId, skuNum})
+            this.get_cart_list()
+        },
+        //输入数量
+        async changeCart(e) {
+            alert("修改数量成功")
+            const {id, num} = e.target.dataset //修改前内容
+            const nval = e.target.value  //输入框内容
+            if (nval > 0) {
+                await this.add_cart({skuId: id, skuNum: (nval - num)})
+                this.get_cart_list()
+            } else {
+                e.target.value = 1
+            }
+        },
+        // 是否选择
+        async changeCheckCart($event, id) {
+            if ($event.target.checked) {
+                await this.get_check_cart({id, isChecked: 1})
+            } else {
+                await this.get_check_cart({id, isChecked: 0})
+            }
+            alert("修改所有商品选中状态成功")
+            this.get_cart_list()
+        },
+        //是否全选
+        async selectAll(selectAll) {
+            if (selectAll) {
+                console.log(this.idArr)
+                await this.post_batch_check_cart({isChecked: 0, arr: this.idArr})
+            } else {
+                console.log(this.idArr)
+                await this.post_batch_check_cart({isChecked: 1, arr: this.idArr})
+            }
+            alert("修改所有商品选中状态成功")
+            this.get_cart_list()
+        },
+        //批量删除
+        deleteAll() {
+            this.delete_batch_delete_cart(this.selectAllArr)
+        },
+        //删除单个
+        async deleteCart(skuId) {
+            alert("删除成功成功")
+            await this.delete_cart(skuId)
+            this.get_cart_list()
+        }
     },
     beforeMount() {
         this.get_cart_list()
+
     },
-    mounted(){
-        console.log(this.num)
+    computed: {
+        ...mapGetters("shopcart", ["cartInfoList"]),
+        idArr() {
+            return this.cartInfoList.map(t => t.skuId)
+        },
+        isChecked() {
+            return this.cartInfoList.every(t => t.isChecked === 1)
+        },
+        selectAllArr() {
+            return this.cartInfoList.filter(item => item.isChecked === 1).map(item => item.skuId)
+        },
+        totalPrice() {
+            if (this.cartInfoList.length){
+                const PriceArr = this.cartInfoList.filter(item => item.isChecked === 1).map(item => item.skuNum * item.skuPrice)
+                return PriceArr.reduce((prev, item) => prev + item, 0)
+            }else {
+                return 0
+            }
+        }
     },
-    computed:{
-        ...mapState("cart",["cartList"]),
+    watch: {
+        cartInfoList: {
+            handler(v) {
+                if(v){
+                    this.isSelectAll = v.every(t => t.isChecked === 1)
+                    this.chosen = v.reduce((prev, item) => prev + (item.isChecked === 1), 0)
+                }
+            },
+            deep: true,
+        }
     }
 }
 </script>

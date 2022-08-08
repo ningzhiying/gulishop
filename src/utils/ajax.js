@@ -14,8 +14,9 @@ const request = axios.create({
 
 
 request.interceptors.request.use(config => {
-    config.headers={
-            "userTempId":localStorage.getItem("USERTEMPID_KEY")
+    config.headers = {
+        "userTempId": localStorage.getItem("USERTEMPID_KEY"),
+        "token": localStorage.getItem("TOKEN_KEY")
     }
     NProgress.start();
     return config

@@ -25,7 +25,7 @@
 
 <script>
 export default {
-    name:"AddCartCom",
+    name:"AddCartSuccessCom",
     data(){
         return{
             skuInfo:JSON.parse(sessionStorage.getItem("SKUINFO_KEY")),

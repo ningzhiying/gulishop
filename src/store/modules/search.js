@@ -12,10 +12,8 @@ const mutations = {
 const actions = {
     // 获取信息列表
     async inquire_about_products({commit},searchParams){
-        console.log(searchParams)
        try{
            const result = await postCommodityList(searchParams)
-           console.log(result)
            if (result.code===200){
                commit("ASSIGN_PRODUCTS_LIST",result.data)
            }
@@ -37,9 +35,10 @@ const getters = {
     },
     pages(state){
       return{
-          total:state.productList.total,
-          totalPages:state.productList.totalPages,
-          pageSize:state.productList.pageSize
+          total:state.productList.total  || 0,
+          totalPages:state.productList.totalPages || 0,
+          pageSize:state.productList.pageSize || 0,
+          pageNo:state.productList.pageNo ||0
       }
     }
 };

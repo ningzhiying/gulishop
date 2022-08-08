@@ -47,6 +47,15 @@ export default {
     computed: {
         ...mapGetters("search", ["attrsList",  "trademarkList", "pages"]),
     },
+    methods:{
+        addProps(attrs ,attrValue){
+            this.$emit("addPropsHandler",attrs ,attrValue)
+        },
+        changeTrademark(id,name){
+            this.$emit("changeTrademarkHandler",id,name)
+        }
+
+    }
 }
 </script>
 

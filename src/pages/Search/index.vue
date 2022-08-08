@@ -23,44 +23,10 @@
                     </ul>
                 </div>
                 <!--selector-->
-                <div class="clearfix selector">
-                    <div class="type-wrap logo">
-                        <div class="fl key brand">品牌</div>
-                        <div class="value logos">
-                            <ul class="logo-list">
-                                <li
-                                    v-for="trademark in trademarkList"
-                                    :key="trademark.tmId"
-                                    @click="changeTrademark(trademark.tmId,trademark.tmName)"
-                                    :style="{cursor:'pointer'}"
-                                >
-                                    {{ trademark.tmName }}
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div
-                        class="type-wrap"
-                        v-for="attrs in attrsList"
-                        :key="attrs.attrId"
-                    >
-                        <div class="fl key">{{ attrs.attrName }}</div>
-                        <div class="fl value">
-                            <ul class="type-list">
-                                <li
-                                    v-for="(attrValue,index) in attrs.attrValueList"
-                                    :key="index"
-                                >
-                                    <a
-                                        @click="addProps(attrs ,attrValue)"
-                                        :style="{cursor:'pointer'}"
-                                    >{{ attrValue }}</a>
-                                </li>
-                            </ul>
-                        </div>
-                        <div class="fl ext"></div>
-                    </div>
-                </div>
+                <SearchSelector
+                    @addPropsHandler="addProps"
+                    @changeTrademarkHandler="changeTrademark"
+                />
                 <!--details-->
                 <div class="details clearfix">
                     <div class="sui-navbar">
@@ -126,13 +92,13 @@
                         </ul>
                     </div>
                     <div class="fr page">
-                        <el-pagination
-                            @current-change="handleCurrentChange"
-                            background
-                            :page-size="pages.pageSize"
-                            layout=" prev, pager, next,  total"
-                            :total="pages.total">
-                        </el-pagination>
+                        <PaginationCom
+                            :total="pages.total"
+                            :pageSize="searchParams.pageSize"
+                            :pageNo="searchParams.pageNo"
+                            :pageCount=5
+                            @formFeed="formFeed"
+                        ></PaginationCom>
                     </div>
                 </div>
                 <!--hotsale-->
@@ -230,16 +196,18 @@
 
 <script>
 import {mapActions, mapGetters} from "vuex";
+import SearchSelector from "@/pages/Search/SearchSelector";
 
 export default {
     name: "SearchCom",
+    components: {SearchSelector},
     data() {
         return {
             searchParams: {
                 categoryName: '',
                 category3Id: "",
                 order: "1:desc",
-                pageNo: "1",
+                pageNo: 1,
                 pageSize: 5,
                 props: [],
                 keyword: "",
@@ -253,6 +221,7 @@ export default {
         }
     },
     methods: {
+        //请求参数
         handlerSearchParams() {
             const {categoryName, category1Id, category2Id, category3Id} = this.$route.query
             this.searchParams = {
@@ -267,6 +236,7 @@ export default {
         ...mapActions("search", ['inquire_about_products']),
         //添加配置参数
         addProps(attrs, attrValue) {
+            console.log(attrs, attrValue)
             let text = `${attrs.attrId}:${attrValue}:${attrs.attrName}`
             if (!this.searchParams.props.includes(text)) {
                 this.searchParams.props.push(text)
@@ -275,7 +245,6 @@ export default {
         //选择品牌
         changeTrademark(id, name) {
             this.searchParams.trademark = `${id}:${name}`
-            this.trademark = {id: id, name: name}
         },
         //删除三级导航
         deleteCategoryName() {
@@ -328,21 +297,19 @@ export default {
             this.searchParams.order = `1:${this.synthesize}`
         },
         //换页
-        handleCurrentChange(val) {
+        formFeed(val) {
+            if (val === this.searchParams.pageNo) {
+                return
+            }
             this.searchParams.pageNo = val
         },
+        //详情
         JumpToDetail(id) {
             this.$router.push("/detail/" + id)
         }
     },
-    mounted() {
-        this.inquire_about_products({
-            ...this.searchParams
-        });
-        console.log(this.searchParams)
-    },
     computed: {
-        ...mapGetters("search", ["attrsList", "goodsList", "trademarkList", "pages"]),
+        ...mapGetters("search", ["goodsList", "pages"]),
     },
     watch: {
         //监听路由
