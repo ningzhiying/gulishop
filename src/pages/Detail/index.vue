@@ -21,25 +21,9 @@
                 <!-- 左侧放大镜区域 -->
                 <div class="previewWrap">
                     <!--放大镜效果-->
-                    <ZoomCom :skuImageList="skuInfo.skuImageList"></ZoomCom>
+                    <ZoomCom :skuImageList="skuImageList"></ZoomCom>
                     <!--下方的缩略图-->
-                    <div class="specScroll" ref="specScroll">
-                        <!--左按钮-->
-                        <a class="prev" @click="previousImage">&lt;</a>
-                        <!-- 中间可滑动区域 -->
-                        <div class="items" ref="items">
-                            <div class="itemsCon" :style="{width:thumbnailWidth+'px'}" ref="thumbnailBox">
-                                <img
-                                    ref="thumbnail"
-                                    v-for="img in skuInfo.skuImageList"
-                                    :key="img.id" :src="img.imgUrl"
-                                    @click="changeThePicture(img.imgUrl)"
-                                >
-                            </div>
-                        </div>
-                        <!--右按钮-->
-                        <a class="next" @click="nextThumbnail">&gt;</a>
-                    </div>
+                    <ImageList :skuImageList="skuImageList"></ImageList>
                 </div>
                 <!-- 右侧选择区域布局 -->
                 <div class="InfoWrap">
@@ -90,15 +74,15 @@
                                 </dt>
                                 <dd v-for="spuSaleAttrValue in spuSaleAttr.spuSaleAttrValueList"
                                     :key="spuSaleAttrValue.id"
-                                    :class="{active: spuSaleAttrValue.isChecked ==1}"
-                                    @click="supId = spuSaleAttrValue.id"
+                                    :class="{active: spuSaleAttrValue.isChecked%2}"
+                                    @click=" spuSaleAttrValue.isChecked++"
                                 >{{ spuSaleAttrValue.saleAttrValueName }}
                                 </dd>
                             </dl>
                         </div>
                         <div class="cartWrap">
                             <div class="controls">
-                                <input autocomplete="off" value="1" v-model="skuNum" class="itxt"/>
+                                <input autocomplete="off" value="1" v-model.number="skuNum" class="itxt"/>
                                 <a @click.prevent="skuNum++" class="plus">+</a>
                                 <a @click.prevent="skuNum--" class="mins">-</a>
                             </div>
@@ -356,10 +340,10 @@
 
 import {mapActions, mapGetters, mapState} from "vuex";
 import ZoomCom from "@/pages/Detail/Zoom";
-
+import ImageList from "@/pages/Detail/ImageList";
 export default {
     name: "DetailCom",
-    components: {ZoomCom},
+    components: {ZoomCom,ImageList},
     data() {
         return {
             skuId: '',
@@ -369,27 +353,8 @@ export default {
         }
     },
     methods: {
-        ...mapActions(["get_goods_detail_list"]),
+        ...mapActions('detail',["get_goods_detail_list"]),
         ...mapActions('addcart', ["add_cart"]),
-        // 点击缩略图更换图片
-        changeThePicture(src) {
-            this.$bus.$emit("switchPictures",src)
-
-        },
-        //切换缩略图
-        previousImage() {
-            let thumbnailBox = this.$refs.thumbnailBox
-            let countMove = 372 - this.thumbnailWidth
-            if (thumbnailBox.offsetLeft >= countMove) {
-                thumbnailBox.style.left = thumbnailBox.offsetLeft - 106 + "px"
-            }
-        },
-        nextThumbnail() {
-            let thumbnailBox = this.$refs.thumbnailBox
-            if (thumbnailBox.offsetLeft < 0) {
-                thumbnailBox.style.left = thumbnailBox.offsetLeft + 106 + "px"
-            }
-        },
         //添加购物车
         addCartSuccess() {
             let data = {
@@ -444,16 +409,24 @@ export default {
         this.thumbnailWidth = (this.skuInfo.skuImageList.length) * 106
     },
     computed: {
-        ...mapGetters(["categoryView", "spuSaleAttrList", "skuInfo", "price"]),
+        ...mapGetters('detail',["categoryView", "spuSaleAttrList", "skuInfo", "price"]),
         ...mapState({
             detailList: state => state.detail.detailList
         }),
+        skuImageList(){
+            return this.skuInfo.skuImageList || []
+        }
     },
     watch: {
         skuNum: {
             handler(val) {
                 if (val < 1) {
                     this.skuNum = 1
+                    return
+                }else if(typeof val=== "string"){
+                        alert("请输入合法数值")
+                        this.skuNum = 1
+                        return
                 }
             }
         }
@@ -532,57 +505,6 @@ export default {
                 }
             }
 
-            .specScroll {
-                margin-top: 5px;
-                width: 400px;
-                overflow: hidden;
-
-                .prev, .next {
-                    text-align: center;
-                    width: 10px;
-                    height: 54px;
-                    line-height: 54px;
-                    border: 1px solid #CCC;
-                    background: #EBEBEB;
-                    cursor: pointer;
-                }
-
-                .prev {
-                    float: left;
-                    margin-right: 4px;
-                }
-
-                .next {
-                    float: right;
-                }
-
-                .items {
-                    float: left;
-                    position: relative;
-                    left: 0px;
-                    width: 372px;
-                    height: 56px;
-                    overflow: hidden;
-
-                    .itemsCon {
-                        position: absolute;
-                        left: 0px;
-                        width: 999px;
-                        height: 56px;
-
-
-                        img {
-                            float: left;
-                            text-align: center;
-                            border: 1px solid #CCC;
-                            padding: 2px;
-                            width: 50px;
-                            height: 50px;
-                            margin-right: 50px;
-                        }
-                    }
-                }
-            }
         }
 
         .InfoWrap {

@@ -1,42 +1,44 @@
 <template>
-    <div
-        class="swiper-container" ref="refName">
-        <div class="swiper-wrapper">
-            <div
-                class="swiper-slide"
-                v-for="banner in List"
-                :key="banner.id"
-            >
-                <img :src="banner.imgUrl"/>
+    <div class="swiper-container" ref="refName">
+        <slot>
+            <div class="swiper-wrapper">
+                <div
+                    class="swiper-slide"
+                    v-for="banner in List"
+                    :key="banner.id"
+                >
+                    <img :src="banner.imgUrl"/>
+                </div>
             </div>
-        </div>
-        <!-- 如果需要分页器 -->
-        <div class="swiper-pagination"></div>
+            <!-- 如果需要分页器 -->
+            <div class="swiper-pagination"></div>
 
-        <!-- 如果需要导航按钮 -->
-        <div class="swiper-button-prev"></div>
-        <div class="swiper-button-next"></div>
+            <!-- 如果需要导航按钮 -->
+            <div class="swiper-button-prev"></div>
+            <div class="swiper-button-next"></div>
+
+        </slot>
     </div>
 </template>
 
 <script>
 import Swiper from "swiper/swiper-bundle.min";
 import "swiper/swiper-bundle.min.css"
+
 export default {
-    name:"BannerSwiper",
-    props:{
-        List:{
-            type:Array,
-            required:true
+    name: "BannerSwiper",
+    props: {
+        List: {
+            type: Array,
+            required: true
         },
-        refName:{
-            type:String,
-            default:"mySwiper"
-        }
-    },
-    methods:{
-        bannerSwiper(){
-             new Swiper(this.$refs.refName, {
+        refName: {
+            type: String,
+            default: "mySwiper"
+        },
+        options: {
+            type: Object,
+            default: () => ({
                 // autoplay: true, //可选选项，自动滑动
                 autoplay: {
                     delay: 2000, // 时间间隔
@@ -56,16 +58,21 @@ export default {
             })
         }
     },
-    watch:{
-        List:{
-            handler(newVal){
-                if(newVal && newVal.length){
-                    this.$nextTick(()=>{
+    methods: {
+        bannerSwiper() {
+            new Swiper(this.$refs.refName, this.options)
+        }
+    },
+    watch: {
+        List: {
+            handler(newVal) {
+                if (newVal && newVal.length) {
+                    this.$nextTick(() => {
                         this.bannerSwiper()
                     })
                 }
             },
-            immediate:true
+            immediate: true
         }
     }
 }

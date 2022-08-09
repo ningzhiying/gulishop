@@ -11,7 +11,7 @@ const mutations = {
 };
 const actions = {
     // 获取信息列表
-    async inquire_about_products({commit},searchParams){
+    async inquire_about_products_handler({commit},searchParams){
        try{
            const result = await postCommodityList(searchParams)
            if (result.code===200){

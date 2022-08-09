@@ -5,15 +5,19 @@
             <div class="container">
                 <div class="loginList">
                     <p>尚品汇欢迎您！</p>
-                    <p>
+                    <p v-if="loginShow">
                         <span>请</span>
                         <router-link to="/login">登录</router-link>
                         <router-link to="/register" class="register">免费注册</router-link>
                     </p>
+                    <p v-else>
+                        <a @click.prevent>{{ userList && userList.name }}</a>
+                        <a to="/home" @click.prevent="signOut" class="register">退出登录</a>
+                    </p>
                 </div>
                 <div class="typeList">
-                    <a href="###">我的订单</a>
-                    <router-link to="/shopcart" >我的购物车</router-link>
+                    <router-link to="/center/myOrder">我的订单</router-link>
+                    <router-link to="/shopcart">我的购物车</router-link>
                     <a href="###">我的尚品汇</a>
                     <a href="###">尚品汇会员</a>
                     <a href="###">企业采购</a>
@@ -26,10 +30,9 @@
         <!--头部第二行 搜索区域-->
         <div
             class="bottom"
-
         >
             <h1 class="logoArea">
-                <router-link to="/home" class="logo" title="尚品汇" >
+                <router-link to="/home" class="logo" title="尚品汇">
                     <img src="./images/logo.png" alt="">
                 </router-link>
             </h1>
@@ -44,35 +47,62 @@
 </template>
 
 <script>
+import {mapActions, mapState} from "vuex";
+import {getPassportLogout} from "@/api";
+
 export default {
     name: "HeaderCom",
     data() {
         return {
-            keyword: ""
+            keyword: "",
+            loginShow: true
         }
     },
     mounted() {
-        this.$bus.$on("deleteKeyword",this.deleteKeyword)
+        this.$bus.$on("deleteKeyword", this.deleteKeyword)
+        this.get_user_info()
     },
     methods: {
+        ...mapActions('login',['get_user_info']),
         toSearch() {
             let location = {
-                name:"search",
-                params:{keyword:this.keyword ||undefined }
+                name: "search",
+                params: {keyword: this.keyword || undefined}
             }
-            if(this.$route.query){
+            if (this.$route.query) {
                 location.query = this.$route.query
             }
-            if(this.$route.query ==="/home"){
+            if (this.$route.query === "/home") {
                 this.$router.push(location)
             } else {
                 this.$router.replace(location)
             }
         },
         deleteKeyword() {
-            this.keyword=""
+            this.keyword = ""
+        },
+        async signOut() {
+            await getPassportLogout()
+            delete localStorage.TOKEN_KEY
+            this.loginShow = true
+        }
+    },
+    computed: {
+        ...mapState("login", ["userList",]),
+    },
+    watch: {
+        userList: {
+            handler(val) {
+                if (typeof val === "string") {
+                    this.loginShow = true
+                } else {
+                    this.loginShow = false
+                }
+            },
+            deep: true
         }
     }
+
 }
 </script>
 

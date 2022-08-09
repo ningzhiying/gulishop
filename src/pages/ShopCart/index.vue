@@ -134,6 +134,7 @@ export default {
         },
         //批量删除
         deleteAll() {
+            console.log(this.selectAllArr)
             this.delete_batch_delete_cart(this.selectAllArr)
         },
         //删除单个

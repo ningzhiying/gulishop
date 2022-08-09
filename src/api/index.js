@@ -25,6 +25,23 @@ export const getOrderAuthTrade = () => ajax({
 })
 //登录/api/user/passport/login
 export const postLogin = (user) => ajax.post("/user/passport/login", user)
+//退出登录/api/user/passport/logout
+export const getPassportLogout = () => ajax.get("/user/passport/logout")
+//获取验证码/api/user/passport/sendCode/{phone}
+export const getSendCode = (phone) => ajax.get(`/user/passport/sendCode/${phone}`)
+//注册 /api/user/passport/register
+export const postRegister = (params) => ajax.post(`/user/passport/register`, params)
+///user/passport/auth/getUserInfo
+export const getUserInfo = () => ajax.get("/user/passport/auth/getUserInfo")
+//提交订单/api/order/auth/submitOrder?tradeNo={tradeNo}
+export const postSubmitOrder = (data) => ajax.post(`/order/auth/submitOrder?tradeNo=${data.tradeNo}`, data.params)
+// 获取订单支付信息/api/payment/weixin/createNative/{orderId}
+export const getCreateNative = (orderId) => ajax({
+    method: "get",
+    url: `/payment/weixin/createNative/${orderId}`
+})
+//获取订单列表/api/order/auth/{page}/{limit}
+export const getOrderList = (page,limit) => ajax.get(`/order/auth/${page}/${limit}`)
 // 模拟数据
 export const getHomeList = () => mockAjax({
     url: "/home",

@@ -25,7 +25,8 @@ export default {
     },
     data() {
         return {
-            isShow: false
+            isShow: false,
+            index:0
         }
     },
     mounted() {
@@ -33,12 +34,11 @@ export default {
     },
     computed: {
         mainImage() {
-            return this.skuImageList[0] || {}
+            return this.skuImageList[this.index] || {}
         }
     },
     methods:{
         mouseMove(e){
-            console.dir(this.$refs.maskRef.offsetWidth)
             let endX = e.offsetX - this.$refs.maskRef.clientWidth/2
             let endY = e.offsetY - this.$refs.maskRef.clientHeight/2
 
@@ -57,9 +57,8 @@ export default {
             this.$refs.bigImg.style.left =(-endX*2)+ "px"
             this.$refs.bigImg.style.top =(-endY*2)+ "px"
         },
-        switchPictures(src){
-            this.$refs.bigImg.src=src
-            this.$refs.mainImage.src=src
+        switchPictures(index){
+          this.index=index
         }
     }
 }

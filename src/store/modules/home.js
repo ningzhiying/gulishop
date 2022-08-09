@@ -42,7 +42,6 @@ const actions = {
     },
     async get_banner_list({commit}) {
         const result = await getHomeBannerList()
-        console.log(result)
         commit("GET_BANNER_LIST", result.data)
     },
     async get_floor_list({commit}) {

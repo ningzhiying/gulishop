@@ -1,13 +1,14 @@
 // vuex管理的home模块
 
-import {postLogin} from "@/api";
+import {getUserInfo, postLogin} from "@/api";
 
 const state = {
-    userList:""
+    userList:{}
 };
 
 const mutations = {
     USER_LIST(state,userList){
+        console.log(userList)
         state.userList=userList
     }
 };
@@ -24,6 +25,14 @@ const actions = {
       }catch (err){
           return Promise.reject(err)
       }
+    },
+    async get_user_info({commit}){
+       try {
+           const result =await getUserInfo();
+           commit("USER_LIST",result.data)
+       }catch (err){
+           return Promise.reject(err)
+       }
     }
 };
 const getters = {

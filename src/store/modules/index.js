@@ -6,6 +6,8 @@ import shopcart from "@/store/modules/shopcart";
 import addcart from "@/store/modules/addcart";
 import trade from "@/store/modules/trade";
 import login from "@/store/modules/login";
+import pay from "@/store/modules/pay";
+import order from "@/store/modules/order";
 //向外暴露所有vuex管理模块的对象
 export  default {
     home,
@@ -14,5 +16,7 @@ export  default {
     shopcart,
     addcart,
     trade,
-    login
+    login,
+    pay,
+    order
 }

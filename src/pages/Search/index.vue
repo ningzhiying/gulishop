@@ -218,9 +218,12 @@ export default {
             isShow2: false,
             price: "asc",
             synthesize: "desc",
+            recordPageNo: 1
         }
     },
     methods: {
+        // 获取信息列表
+        ...mapActions("search", ['inquire_about_products_handler']),
         //请求参数
         handlerSearchParams() {
             const {categoryName, category1Id, category2Id, category3Id} = this.$route.query
@@ -232,8 +235,13 @@ export default {
                 category3Id
             }
         },
-        // 获取信息列表
-        ...mapActions("search", ['inquire_about_products']),
+        inquire_about_products(){
+          if (this.recordPageNo ===this.searchParams.pageNo){
+              this.searchParams.pageNo=1
+          }
+            this.inquire_about_products_handler(this.searchParams)
+            this.recordPageNo = this.searchParams.pageNo;
+        },
         //添加配置参数
         addProps(attrs, attrValue) {
             console.log(attrs, attrValue)
@@ -257,7 +265,7 @@ export default {
         deleteKeyword() {
             this.$router.replace({
                 name: "search",
-                params: this.$route.query
+                query: this.$route.query
             })
             this.$bus.$emit("deleteKeyword")
         },
@@ -301,7 +309,7 @@ export default {
             if (val === this.searchParams.pageNo) {
                 return
             }
-            this.searchParams.pageNo = val
+            this.searchParams.pageNo=val
         },
         //详情
         JumpToDetail(id) {
@@ -324,7 +332,7 @@ export default {
         //监听参数，请求数据
         searchParams: {
             handler() {
-                this.inquire_about_products(this.searchParams)
+                this.inquire_about_products(this.searchParams.pageNo)
             },
             immediate: true,
             deep: true
